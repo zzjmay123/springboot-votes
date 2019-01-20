@@ -22,14 +22,19 @@ public class VoteController {
     @Resource
     private VoteService voteService;
 
-    @RequestMapping("/queryTop10")
-    public RankResult queryTop10(){
-        return voteService.queryTopPlayerList(10,"");
+    @RequestMapping("/queryTop/{rank}")
+    public RankResult queryTop10(@PathVariable int rank){
+        return voteService.queryTopPlayerList(rank,"");
     }
 
     @RequestMapping("/insetPlayer/{playerName}")
     public BaseResult insetPlayer(@PathVariable  String  playerName){
         return voteService.createPlayer(playerName);
+    }
+
+    @RequestMapping("/vote/{playerName}")
+    public BaseResult votePlayer(@PathVariable String playerName){
+        return voteService.votePlayer(playerName);
     }
 
 

@@ -54,9 +54,10 @@ public class VoteServiceImpl implements VoteService {
     public BaseResult votePlayer(String playerName) {
         BaseResult baseResult = new BaseResult();
 
-        if(!isNotExistPlayer(playerName)){
+        if(isNotExistPlayer(playerName)){
             baseResult.setCode("1001");
             baseResult.setInfo("当前选手不存在，请选择其他选手");
+            return baseResult;
         }
 
         Double voteNum = redisDao.zIncrBy(Constants.SING_VOTE_KEY,Constants.VOTE_SCORE_PER,playerName);
@@ -77,14 +78,15 @@ public class VoteServiceImpl implements VoteService {
 
         if(StringUtils.isEmpty(playerName)){
             //查询前top用户
-            Set<ZSetOperations.TypedTuple<String>> topSets = redisDao.zRevRangeWithScore(Constants.SING_VOTE_KEY,0,topNum);
+            Set<ZSetOperations.TypedTuple<String>> topSets = redisDao.zRevRangeWithScore(Constants.SING_VOTE_KEY,0,topNum-1);
             List<VoteInfo> voteInfoList = new ArrayList<>();
 
             topSets.stream().forEach((ZSetOperations.TypedTuple<String> info) -> {
                 VoteInfo voteInfo = new VoteInfo();
                 voteInfo.setPlayerName(info.getValue());
                 voteInfo.setVoteNum(info.getScore());
-                redisDao.zRevRank(Constants.SING_VOTE_KEY,info.getValue());
+                long rank = redisDao.zRevRank(Constants.SING_VOTE_KEY,info.getValue());
+                voteInfo.setRank(rank + 1);
                 voteInfoList.add(voteInfo);
             });
 
@@ -113,6 +115,7 @@ public class VoteServiceImpl implements VoteService {
 
             sumPlayer = redisDao.zCard(Constants.SING_VOTE_KEY);
             if(sumPlayer > 0){
+                rankSumResult.setSumPlayerNum(sumPlayer);
                 //说明有成员，计算对应的总分数
                 Set<ZSetOperations.TypedTuple<String>> members = redisDao.zRevRangeWithScore(Constants.SING_VOTE_KEY,0,-1);
 

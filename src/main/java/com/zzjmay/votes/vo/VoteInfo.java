@@ -20,7 +20,7 @@ public class VoteInfo implements Serializable {
     /**
      * 排名
      */
-    private Integer rank;
+    private Long rank;
 
     /**
      * 与前一名的差距
@@ -39,12 +39,11 @@ public class VoteInfo implements Serializable {
     }
 
 
-
-    public Integer getRank() {
+    public Long getRank() {
         return rank;
     }
 
-    public void setRank(Integer rank) {
+    public void setRank(Long rank) {
         this.rank = rank;
     }
 

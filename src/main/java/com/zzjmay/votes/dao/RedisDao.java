@@ -1,5 +1,7 @@
 package com.zzjmay.votes.dao;
 
+import org.springframework.data.redis.core.ZSetOperations;
+
 import java.util.Set;
 
 /**
@@ -32,6 +34,13 @@ public interface RedisDao {
     void zAdd(String key,double score,String value);
 
     /**
+     * 返回当前集合的成员数量
+     * @param key
+     * @return
+     */
+    Long zCard(String key);
+
+    /**
      * 获取zset一定范围的集合 升序
      * @param key
      * @param begin
@@ -56,6 +65,8 @@ public interface RedisDao {
      * @return
      */
     Set<String> zRevRange(String key,long begin,long end);
+
+    Set<ZSetOperations.TypedTuple<String>> zRevRangeWithScore(String key, long begin, long end);
 
     /**
      * 获取某个具体member降序排名

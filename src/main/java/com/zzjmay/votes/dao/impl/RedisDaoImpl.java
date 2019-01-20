@@ -4,6 +4,7 @@ import com.zzjmay.votes.dao.RedisDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -58,6 +59,11 @@ public class RedisDaoImpl implements RedisDao {
     }
 
     @Override
+    public Long zCard(String key) {
+        return redisTemplate.opsForZSet().zCard(key);
+    }
+
+    @Override
     public Set<String> zRange(String key, long begin, long end) {
         Set<String> set = null;
 
@@ -90,6 +96,19 @@ public class RedisDaoImpl implements RedisDao {
 
         try{
             set = redisTemplate.opsForZSet().reverseRange(key,begin,end);
+        }catch (Exception e){
+            logger.error("获取有序集合异常 key:{}",key,e);
+        }
+
+        return set;
+    }
+
+    @Override
+    public Set<ZSetOperations.TypedTuple<String>> zRevRangeWithScore(String key, long begin, long end) {
+        Set<ZSetOperations.TypedTuple<String>> set = null;
+
+        try{
+            set = redisTemplate.opsForZSet().reverseRangeWithScores(key,begin,end);
         }catch (Exception e){
             logger.error("获取有序集合异常 key:{}",key,e);
         }

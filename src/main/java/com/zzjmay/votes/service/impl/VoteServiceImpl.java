@@ -1,5 +1,6 @@
 package com.zzjmay.votes.service.impl;
 
+import com.zzjmay.annotation.RateLimiter;
 import com.zzjmay.common.BaseResult;
 import com.zzjmay.common.Constants;
 import com.zzjmay.common.RankResult;
@@ -33,6 +34,7 @@ public class VoteServiceImpl implements VoteService {
     @Resource
     private RedisLimitUntils redisLimitUntils;
 
+    @RateLimiter(key = "rate:createPlayer",limit = 5,expire = 60)
     @Override
     public BaseResult createPlayer(String playerName) {
         BaseResult baseResult = new BaseResult();
@@ -54,6 +56,7 @@ public class VoteServiceImpl implements VoteService {
     }
 
 
+    @RateLimiter(key = "rate:votePlayer",limit = 5,expire = 60)
     @Override
     public BaseResult votePlayer(String playerName,String ip) {
         BaseResult baseResult = new BaseResult();
@@ -61,16 +64,6 @@ public class VoteServiceImpl implements VoteService {
         if(isNotExistPlayer(playerName)){
             baseResult.setCode("1001");
             baseResult.setInfo("当前选手不存在，请选择其他选手");
-            return baseResult;
-        }
-
-        //为了防止刷票嫌疑，增加了redis的IP限流机制,10s内不能投超过5票
-        boolean isVote = redisLimitUntils.exec(ip);
-
-        if(!isVote){
-            logger.info("存在刷票嫌疑");
-            baseResult.setCode("1003");
-            baseResult.setInfo("对不起,当前IP投票过于频繁");
             return baseResult;
         }
 

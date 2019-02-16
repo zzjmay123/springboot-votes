@@ -41,6 +41,11 @@
 			<artifactId>commons-pool2</artifactId>
 		</dependency>
 
+		<!--添加AOP依赖-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-aop</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>

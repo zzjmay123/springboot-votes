@@ -12,7 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 实现一个小工具，根据IP进行限制流量
+ * 实现一个小工具，根据IP进行防刷机制
+ * 当前实现不具有通用性，存在代码侵入，需要通过切面实现一套侵入性不强的限流工具
  * Created by zzjmay on 2019/2/16.
  */
 @Service("redisLimitUntils")
@@ -42,7 +43,7 @@ public class RedisLimitUntils {
         List<String> keys = new ArrayList<>();
 
         keys.add(IPACCESS_KEY_PREIX+ip);
-        //设置限流的次数，10s内同一个IP不能超过5次
-        return redisDao.eval(script,keys,10,5) == 1?true:false;
+        //设置限流的次数，1分钟s内同一个IP不能超过5次
+        return redisDao.eval(script,keys,60,5) == 1?true:false;
     }
 }

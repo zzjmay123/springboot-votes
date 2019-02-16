@@ -6,6 +6,7 @@ import com.zzjmay.common.RankResult;
 import com.zzjmay.common.RankSumResult;
 import com.zzjmay.votes.dao.RedisDao;
 import com.zzjmay.votes.service.VoteService;
+import com.zzjmay.votes.untils.RedisLimitUntils;
 import com.zzjmay.votes.vo.VoteInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +30,9 @@ public class VoteServiceImpl implements VoteService {
     @Resource
     private RedisDao redisDao;
 
+    @Resource
+    private RedisLimitUntils redisLimitUntils;
+
     @Override
     public BaseResult createPlayer(String playerName) {
         BaseResult baseResult = new BaseResult();
@@ -51,12 +55,22 @@ public class VoteServiceImpl implements VoteService {
 
 
     @Override
-    public BaseResult votePlayer(String playerName) {
+    public BaseResult votePlayer(String playerName,String ip) {
         BaseResult baseResult = new BaseResult();
 
         if(isNotExistPlayer(playerName)){
             baseResult.setCode("1001");
             baseResult.setInfo("当前选手不存在，请选择其他选手");
+            return baseResult;
+        }
+
+        //为了防止刷票嫌疑，增加了redis的IP限流机制,10s内不能投超过5票
+        boolean isVote = redisLimitUntils.exec(ip);
+
+        if(!isVote){
+            logger.info("存在刷票嫌疑");
+            baseResult.setCode("1003");
+            baseResult.setInfo("对不起,当前IP投票过于频繁");
             return baseResult;
         }
 

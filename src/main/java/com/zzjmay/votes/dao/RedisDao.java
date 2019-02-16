@@ -1,7 +1,9 @@
 package com.zzjmay.votes.dao;
 
 import org.springframework.data.redis.core.ZSetOperations;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -85,6 +87,15 @@ public interface RedisDao {
      * @return
      */
     Double zIncrBy(String key,double increment,String value);
+
+    /**
+     * 执行Lua脚本的方法
+     * @param script 脚本
+     * @param keys key
+     * @param args 参数
+     * @return
+     */
+    <T> T  eval(DefaultRedisScript<T> script, List<String> keys,Object... args);
 
 
 }

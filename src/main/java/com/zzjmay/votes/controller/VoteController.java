@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
 /**
@@ -16,7 +17,7 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/votes")
-public class VoteController {
+public class VoteController extends BaseController{
 
 
     @Resource
@@ -33,8 +34,9 @@ public class VoteController {
     }
 
     @RequestMapping("/vote/{playerName}")
-    public BaseResult votePlayer(@PathVariable String playerName){
-        return voteService.votePlayer(playerName);
+    public BaseResult votePlayer(@PathVariable String playerName, HttpServletRequest request){
+
+        return voteService.votePlayer(playerName,getIpAddr(request));
     }
 
 

@@ -5,9 +5,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -140,5 +142,18 @@ public class RedisDaoImpl implements RedisDao {
         }
 
         return d;
+    }
+
+    @Override
+    public <T> T eval(DefaultRedisScript<T> script, List<String> keys, Object... args) {
+        T r = null;
+
+        try{
+            r = (T) redisTemplate.execute(script,keys,args);
+
+        }catch (Exception e){
+            logger.error("执行lua脚本异常",e);
+        }
+        return r;
     }
 }

@@ -22,7 +22,7 @@ public interface VoteService {
      * @param playerName
      * @return
      */
-    BaseResult votePlayer(String playerName,String ip);
+    BaseResult votePlayer(String playerName);
 
     /**
      * 查询top前几的列表

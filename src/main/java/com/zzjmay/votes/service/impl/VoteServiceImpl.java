@@ -1,5 +1,12 @@
 package com.zzjmay.votes.service.impl;
 
+import com.alibaba.csp.sentinel.Entry;
+import com.alibaba.csp.sentinel.SphU;
+import com.alibaba.csp.sentinel.annotation.SentinelResource;
+import com.alibaba.csp.sentinel.slots.block.BlockException;
+import com.alibaba.csp.sentinel.slots.block.RuleConstant;
+import com.alibaba.csp.sentinel.slots.block.flow.FlowRule;
+import com.alibaba.csp.sentinel.slots.block.flow.FlowRuleManager;
 import com.zzjmay.annotation.RateLimiter;
 import com.zzjmay.common.BaseResult;
 import com.zzjmay.common.Constants;
@@ -15,6 +22,7 @@ import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,43 +42,43 @@ public class VoteServiceImpl implements VoteService {
     @Resource
     private RedisLimitUntils redisLimitUntils;
 
-    @RateLimiter(key = "rate:createPlayer",limit = 5,expire = 60)
+    @RateLimiter(key = "rate:createPlayer", limit = 5, expire = 60)
     @Override
     public BaseResult createPlayer(String playerName) {
         BaseResult baseResult = new BaseResult();
         //判断当前的选手是否存在
 
-        try{
-            if(isNotExistPlayer(playerName)){
+        try {
+            if (isNotExistPlayer(playerName)) {
                 //说明当前的集合中没有该选手
-                redisDao.zAdd(Constants.SING_VOTE_KEY,0.0,playerName);
+                redisDao.zAdd(Constants.SING_VOTE_KEY, 0.0, playerName);
                 baseResult.setSuccess(true);
                 baseResult.setInfo("成功");
                 baseResult.setCode("0000");
             }
 
-        }catch (Exception e){
-            logger.error("创建选手失败 playerName:{}",playerName,e);
+        } catch (Exception e) {
+            logger.error("创建选手失败 playerName:{}", playerName, e);
         }
         return baseResult;
     }
 
-
-    @RateLimiter(key = "rate:votePlayer",limit = 5,expire = 60)
+    @SentinelResource(value = "mytest", blockHandler = "voteLimitHandler")
     @Override
-    public BaseResult votePlayer(String playerName,String ip) {
-        BaseResult baseResult = new BaseResult();
+    public BaseResult votePlayer(String playerName) {
 
-        if(isNotExistPlayer(playerName)){
+        BaseResult baseResult = new BaseResult();
+        if (isNotExistPlayer(playerName)) {
             baseResult.setCode("1001");
             baseResult.setInfo("当前选手不存在，请选择其他选手");
             return baseResult;
         }
 
-        Double voteNum = redisDao.zIncrBy(Constants.SING_VOTE_KEY,Constants.VOTE_SCORE_PER,playerName);
+        Double voteNum = redisDao.zIncrBy(Constants.SING_VOTE_KEY, Constants.VOTE_SCORE_PER, playerName);
 
-        if(voteNum != null && voteNum >0){
+        if (voteNum != null && voteNum > 0) {
             //投票成功
+            logger.info("投票成功");
             baseResult.setSuccess(true);
             baseResult.setInfo("投票成功");
             baseResult.setCode("0000");
@@ -79,20 +87,38 @@ public class VoteServiceImpl implements VoteService {
         return baseResult;
     }
 
+    /**
+     * 阻塞处理
+     *
+     * @param playerName
+     * @param ex
+     * @return
+     */
+    public BaseResult voteLimitHandler(String playerName, BlockException ex) {
+        System.out.println("进行阻塞了 voteLimitHandler:" + playerName);
+        logger.error("进行阻塞了 voteLimitHandler", ex);
+        BaseResult baseResult = new BaseResult();
+        baseResult.setCode("1004");
+        baseResult.setInfo("Sentinel生效了，您被限流了");
+        return baseResult;
+    }
+
+
+
     @Override
     public RankResult queryTopPlayerList(int topNum, String playerName) {
         RankResult rankResult = new RankResult();
 
-        if(StringUtils.isEmpty(playerName)){
+        if (StringUtils.isEmpty(playerName)) {
             //查询前top用户
-            Set<ZSetOperations.TypedTuple<String>> topSets = redisDao.zRevRangeWithScore(Constants.SING_VOTE_KEY,0,topNum-1);
+            Set<ZSetOperations.TypedTuple<String>> topSets = redisDao.zRevRangeWithScore(Constants.SING_VOTE_KEY, 0, topNum - 1);
             List<VoteInfo> voteInfoList = new ArrayList<>();
 
             topSets.stream().forEach((ZSetOperations.TypedTuple<String> info) -> {
                 VoteInfo voteInfo = new VoteInfo();
                 voteInfo.setPlayerName(info.getValue());
                 voteInfo.setVoteNum(info.getScore());
-                long rank = redisDao.zRevRank(Constants.SING_VOTE_KEY,info.getValue());
+                long rank = redisDao.zRevRank(Constants.SING_VOTE_KEY, info.getValue());
                 voteInfo.setRank(rank + 1);
                 voteInfoList.add(voteInfo);
             });
@@ -103,7 +129,7 @@ public class VoteServiceImpl implements VoteService {
             rankResult.setCode("0000");
 
 
-        }else{
+        } else {
             //查询当前用户信息
         }
 
@@ -121,10 +147,10 @@ public class VoteServiceImpl implements VoteService {
             Double sumVotesNum = 0.0;
 
             sumPlayer = redisDao.zCard(Constants.SING_VOTE_KEY);
-            if(sumPlayer > 0){
+            if (sumPlayer > 0) {
                 rankSumResult.setSumPlayerNum(sumPlayer);
                 //说明有成员，计算对应的总分数
-                Set<ZSetOperations.TypedTuple<String>> members = redisDao.zRevRangeWithScore(Constants.SING_VOTE_KEY,0,-1);
+                Set<ZSetOperations.TypedTuple<String>> members = redisDao.zRevRangeWithScore(Constants.SING_VOTE_KEY, 0, -1);
 
                 //通过使用流计算处理
                 sumVotesNum = members.stream().mapToDouble(ZSetOperations.TypedTuple<String>::getScore).sum();
@@ -136,12 +162,11 @@ public class VoteServiceImpl implements VoteService {
             }
 
 
-
-        }catch (Exception e){
+        } catch (Exception e) {
             rankSumResult.setSuccess(false);
             rankSumResult.setInfo("异常");
             rankSumResult.setCode("1002");
-            logger.error("获取总票数异常",e);
+            logger.error("获取总票数异常", e);
         }
 
         return rankSumResult;
@@ -149,7 +174,7 @@ public class VoteServiceImpl implements VoteService {
 
 
     private boolean isNotExistPlayer(String playerName) {
-        return redisDao.zRank(Constants.SING_VOTE_KEY,playerName) == null ||
-                redisDao.zRank(Constants.SING_VOTE_KEY,playerName) <0;
+        return redisDao.zRank(Constants.SING_VOTE_KEY, playerName) == null ||
+                redisDao.zRank(Constants.SING_VOTE_KEY, playerName) < 0;
     }
 }

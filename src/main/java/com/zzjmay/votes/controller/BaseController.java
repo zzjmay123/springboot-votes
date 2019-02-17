@@ -1,8 +1,15 @@
 package com.zzjmay.votes.controller;
 
+import com.alibaba.csp.sentinel.slots.block.RuleConstant;
+import com.alibaba.csp.sentinel.slots.block.flow.FlowRule;
+import com.alibaba.csp.sentinel.slots.block.flow.FlowRuleManager;
+
+import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by zzjmay on 2019/2/16.
@@ -51,4 +58,21 @@ public class BaseController {
 
         return ipAddress;
     }
+
+
+//    @PostConstruct
+//    public static void initFlowRules(){
+//        List<FlowRule> ruleList = new ArrayList<>();
+//
+//        FlowRule rule = new FlowRule();
+//        rule.setResource("mytest");
+////        rule.setRefResource("mytetst");//这里导致了整体的问题
+//        //不同场景使用不同的限流方式
+//        rule.setGrade(RuleConstant.FLOW_GRADE_QPS);
+//        //设置QPS
+//        rule.setCount(20);
+//        rule.setLimitApp("default");
+//        ruleList.add(rule);
+//        FlowRuleManager.loadRules(ruleList);
+//    }
 }

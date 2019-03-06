@@ -5,8 +5,16 @@ package com.zzjmay.leetcode;
  */
 public class Test {
 
-    public static void main(String[] args) {
+   public void syncsTask(){
+      synchronized (this) {
+         System.out.println("Hello");
+      }
+   }
 
-        System.out.println((1L<<10)/(1000L*3600*24));
-    }
+   public synchronized void syncTask(){
+      System.out.println("Hello again");
+   }
+
+
+
 }

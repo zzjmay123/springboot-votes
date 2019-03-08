@@ -26,6 +26,7 @@ public class MyTask extends RecursiveTask<int[]> {
 
             MyTask task2 = new MyTask(Arrays.copyOfRange(source,midIndex,souceLength));
 
+            //建议采用invokeAll方法
             invokeAll(task1,task2);
 
             int result1[] = task1.join();

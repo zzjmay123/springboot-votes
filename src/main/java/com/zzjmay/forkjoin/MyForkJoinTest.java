@@ -35,9 +35,9 @@ public class MyForkJoinTest extends RecursiveTask<Integer> {
             //如果只有两个数
             for(int i = start;i<=end;i++){
                 sum +=i;
-                System.out.println("开始 start"+start);
+//                System.out.println("开始 start"+start);
 
-                System.out.println("compute()  ThreadName"+Thread.currentThread().getName());
+//                System.out.println("compute()  ThreadName"+Thread.currentThread().getName());
 
             }
         }else{
@@ -69,11 +69,13 @@ public class MyForkJoinTest extends RecursiveTask<Integer> {
         Future<Integer> result = forkJoinPool.submit(myForkJoinTest);
 
         try{
-            System.out.println(result.get());
+//            System.out.println(result.get());
             System.out.println("执行结束时间:"+(System.currentTimeMillis() -start));
         }catch (Exception e){
             e.printStackTrace();
         }
+        System.out.println("当前的线程池大小:"+forkJoinPool.getPoolSize());
+
 
 
     }

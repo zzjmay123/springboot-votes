@@ -7,7 +7,7 @@ import java.util.concurrent.ForkJoinTask;
 /**
  * Created by zzjmay on 2019/3/7.
  */
-public class orderByMergeForkTest {
+public class OrderByMergeForkTest {
 
     private static int Max = 1000000;
 
@@ -29,6 +29,10 @@ public class orderByMergeForkTest {
 
         MyTask myTask = new MyTask(inits);
 
+        //存在三种提交外部任务方式：
+        // invoke () 同步返回
+        // execute() 异步提交任务，不关心返回结果
+        // submit() 异步提交任务，关系返回结果
         ForkJoinTask<int[]> taskResult = forkJoinPool.submit(myTask);
 
         try{
@@ -38,7 +42,7 @@ public class orderByMergeForkTest {
         }catch (Exception e){
             e.printStackTrace();
         }
-
+        System.out.println("当前的线程池大小:"+forkJoinPool.getPoolSize());
         long endTime = System.currentTimeMillis();
 
         System.out.println("耗时:"+(endTime - beginTime));

@@ -17,7 +17,7 @@ public class BankCenterRpc {
         //模拟查询白条信息
         PaymentTool paymentTool = null;
         try {
-            Thread.sleep(2000);
+            Thread.sleep(1000);
             logger.info("成功查询卡中心信息成功 pin:{}",pin);
             paymentTool = new PaymentTool();
             paymentTool.setProductType("1");

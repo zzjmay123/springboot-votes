@@ -2,9 +2,7 @@ package com.zzjmay.completableFuture;
 
 import org.junit.Test;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 /**
  * 先写一个Future的例子
@@ -104,6 +102,19 @@ public class CompleteableFutureTest {
 
         System.out.println(cf.join());
 
+    }
+
+    @Test
+    public void schdule(){
+        ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
+
+        System.out.println("3s后开始执行线程池服务");
+        long start = System.currentTimeMillis();
+        scheduledExecutorService.scheduleAtFixedRate(()->{
+            System.out.println("测试****");
+            System.out.println("耗时:time:" +(System.currentTimeMillis() - start));
+
+        },5, 1,TimeUnit.SECONDS);
     }
 
 

@@ -43,6 +43,9 @@ public class QueryPaymentToolServiceImpl implements QueryPaymentToolService {
     @Resource(name = "myTaskAsycPool")
     private ThreadPoolTaskExecutor executor;
 
+    @Resource
+    private AsyncTimeoutService asyncTimeoutService;
+
     @Override
     public PaymentToolRes queryPaymentTool(String userId) {
         //使用completableFuture完成获取支付工具列表的任务
@@ -58,7 +61,7 @@ public class QueryPaymentToolServiceImpl implements QueryPaymentToolService {
             //查询白条支付工作
             CompletableFuture<Void> c1 = CompletableFuture.supplyAsync(() -> baiTiaoRpc.queryBaiTiao(userId)
                     , executor)
-                    .applyToEither(AsyncTimeoutService.failAfter(400),i->i)
+                    .applyToEither(asyncTimeoutService.failAfter(500),i->i)
                     .thenAccept((PaymentTool p) -> {
                 logger.info("回调白条查询");
                 paymentTools.add(p);
@@ -70,7 +73,7 @@ public class QueryPaymentToolServiceImpl implements QueryPaymentToolService {
             //查询银行卡
             CompletableFuture<Void> c2 = CompletableFuture.supplyAsync(
                     () -> bankCenterRpc.queryCardCenter(userId), executor)
-                    .applyToEither(AsyncTimeoutService.failAfter(1000),i->i)
+                    .applyToEither(asyncTimeoutService.failAfter(400),i->i)
                     .thenAccept(p -> {
                         logger.info("回调银行卡查询");
                         paymentTools.add(p);
@@ -82,7 +85,7 @@ public class QueryPaymentToolServiceImpl implements QueryPaymentToolService {
 
             //查询小金库
             CompletableFuture<Void> c3 = CompletableFuture.supplyAsync(() -> xjkRpc.queryXjk(userId), executor)
-                    .applyToEither(AsyncTimeoutService.failAfter(300), i->i)
+                    .applyToEither(asyncTimeoutService.failAfter(300), i->i)
                     .thenAccept(p -> {
                         logger.info("回调小金库查询");
                         paymentTools.add(p);

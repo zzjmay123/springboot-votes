@@ -17,7 +17,7 @@ public class XjkRpc {
         //模拟查询支付工具1信息
         PaymentTool paymentTool = null;
         try {
-            Thread.sleep(200);
+            Thread.sleep(400);
             logger.info("成功查询支付工具1信息成功 pin:{}",pin);
             paymentTool = new PaymentTool();
             paymentTool.setProductType("5");

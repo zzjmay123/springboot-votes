@@ -2,6 +2,7 @@ package com.zzjmay.completableFuture.service;
 
 import com.zzjmay.completableFuture.QueryPaymentToolService;
 import com.zzjmay.completableFuture.executor.AsyncTaslTimeoutUtils;
+import com.zzjmay.completableFuture.executor.AsyncTimeoutService;
 import com.zzjmay.completableFuture.rpc.BaiTiaoRpc;
 import com.zzjmay.completableFuture.rpc.BalanceRpc;
 import com.zzjmay.completableFuture.rpc.BankCenterRpc;
@@ -57,29 +58,38 @@ public class QueryPaymentToolServiceImpl implements QueryPaymentToolService {
             //查询白条支付工作
             CompletableFuture<Void> c1 = CompletableFuture.supplyAsync(() -> baiTiaoRpc.queryBaiTiao(userId)
                     , executor)
-                    .applyToEither(AsyncTaslTimeoutUtils.with(null,600),i->i)
+                    .applyToEither(AsyncTimeoutService.failAfter(400),i->i)
                     .thenAccept((PaymentTool p) -> {
                 logger.info("回调白条查询");
                 paymentTools.add(p);
-            });
+            }).exceptionally(e -> {
+                logger.error("查询白条工具异常",e);
+                return null;
+                    });
 
             //查询银行卡
             CompletableFuture<Void> c2 = CompletableFuture.supplyAsync(
                     () -> bankCenterRpc.queryCardCenter(userId), executor)
-                    .applyToEither(AsyncTaslTimeoutUtils.with(null,400),i->i)
+                    .applyToEither(AsyncTimeoutService.failAfter(1000),i->i)
                     .thenAccept(p -> {
                         logger.info("回调银行卡查询");
                         paymentTools.add(p);
+                    }).exceptionally(e -> {
+                        logger.error("查询银行卡工具异常",e);
+                        return null;
                     });
 
 
             //查询小金库
             CompletableFuture<Void> c3 = CompletableFuture.supplyAsync(() -> xjkRpc.queryXjk(userId), executor)
-                    .applyToEither(AsyncTaslTimeoutUtils.with(null,300),i->i)
+                    .applyToEither(AsyncTimeoutService.failAfter(300), i->i)
                     .thenAccept(p -> {
-                        logger.info("回调小金壳查询");
+                        logger.info("回调小金库查询");
                         paymentTools.add(p);
 
+                    }).exceptionally(e -> {
+                        logger.error("查询小金库工具异常",e);
+                        return null;
                     });
 
 

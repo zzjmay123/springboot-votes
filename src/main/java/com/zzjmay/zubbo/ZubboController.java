@@ -13,6 +13,10 @@ import javax.annotation.Resource;
 @RestController
 public class ZubboController {
 
+    static {
+        System.out.println("初始化ZubboController");
+    }
+
     @Resource
     private MenuService menuServiceZsf;
 

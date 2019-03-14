@@ -22,16 +22,6 @@
                         </xsd:appinfo>
                     </xsd:annotation>
                 </xsd:attribute>
-                <xsd:attribute name="id" type="xsd:token" use="required">
-                    <xsd:annotation>
-                        <xsd:documentation><![CDATA[ The service interface class name. ]]></xsd:documentation>
-                        <xsd:appinfo>
-                            <tool:annotation>
-                                <tool:expected-type type="java.lang.String"/>
-                            </tool:annotation>
-                        </xsd:appinfo>
-                    </xsd:annotation>
-                </xsd:attribute>
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>

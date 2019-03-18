@@ -54,8 +54,6 @@ public class QueryPaymentToolServiceImpl implements QueryPaymentToolService {
         res.setPaymentTools(paymentTools);
         long start = System.currentTimeMillis();
 
-
-        List<CompletableFuture<Void>> completableFutures = new ArrayList<>();
         try {
             beforeQuery();
             //查询白条支付工作

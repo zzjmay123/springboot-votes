@@ -12,7 +12,6 @@ public class Test {
 
     public static void main(String[] args) {
         //新建一个支付前责任链
-
         BeforeSlotChainBuilderImpl beforeSlotChainBuilder = new BeforeSlotChainBuilderImpl();
 
         PaymentContext context = new PaymentContext();

@@ -1,5 +1,7 @@
 package com.zzjmay.completableFuture.executor;
 
+import com.alibaba.csp.sentinel.concurrent.NamedThreadFactory;
+import io.netty.util.concurrent.DefaultThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean;
@@ -18,8 +20,9 @@ public class AsyncTimeoutService {
 
     private final static Logger logger = LoggerFactory.getLogger(AsyncTimeoutService.class);
 
+    //创建守护线程，不阻碍JVM的关闭
     private static final ScheduledExecutorService scheduler =
-            Executors.newScheduledThreadPool(1);
+            Executors.newScheduledThreadPool(1,new NamedThreadFactory("ASYNC-SCHEDULER-",true));
 
     public  <T> CompletableFuture<T> failAfter(long timeout){
 

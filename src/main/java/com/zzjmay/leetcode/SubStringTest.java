@@ -12,7 +12,7 @@ public class SubStringTest {
 
     public static void main(String[] args) {
 
-        String test = "wdkwsdofdxvyzlg";
+        String test = "wdkwsdofdx";
 
         System.out.println(lengthOfLongestSubstring2(test));
     }

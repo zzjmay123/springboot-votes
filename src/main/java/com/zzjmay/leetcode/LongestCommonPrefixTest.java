@@ -12,7 +12,9 @@ public class LongestCommonPrefixTest {
     }
 
     private static String longestCommonPrefix(String[] strs){
-        if(strs.length == 0) return "";
+        if(strs.length == 0) {
+            return "";
+        }
         String prefix = strs[0];
         int len = strs.length;
         for (int i = 1;i< len;i++){

@@ -1,0 +1,3 @@
+#配置SPI实现类
+hebe=com.zzjmay.spi.log.impl.HebeLog
+jony=com.zzjmay.spi.log.impl.JonyLog

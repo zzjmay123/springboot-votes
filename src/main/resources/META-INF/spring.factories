@@ -1,2 +1,10 @@
+org.springframework.context.ApplicationContextInitializer=\
+com.zzjmay.configuration.context.AfterApplicationContextInitializer,\
+com.zzjmay.configuration.context.BeforeApplicationContextInitializer
+
+org.springframework.context.ApplicationListener=\
+com.zzjmay.configuration.listener.AfterApplicationListener,\
+com.zzjmay.configuration.listener.BeforeApplicationListener
+
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 com.zzjmay.configuration.HelloWorldAutoConfiguration

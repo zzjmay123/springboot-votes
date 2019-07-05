@@ -3,11 +3,13 @@ package com.zzjmay.chain.solt.commonsolt;
 import com.zzjmay.chain.solt.AbstractLinkedProcessorSlot;
 import com.zzjmay.chain.vo.PaymentContext;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 /**
  * Created by zzjmay on 2019/3/23.
  */
 @Slf4j
+@Component(value = "riskSlot")
 public class RiskSlot extends AbstractLinkedProcessorSlot<PaymentContext> {
 
 
